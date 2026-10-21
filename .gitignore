@@ -1,4 +1,5 @@
 cfg.py
+DiffusionDB_sample_cases
 generated_images/
 __pycache__/
 *.pyc
