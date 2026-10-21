@@ -1,0 +1,8 @@
+cfg.py
+generated_images/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.idea/
+.vscode/
