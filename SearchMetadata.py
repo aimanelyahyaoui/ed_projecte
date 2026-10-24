@@ -1,6 +1,6 @@
 import cfg
 
-_NONE = "None"  
+_NONE = "None"
 
 
 class SearchMetadata:
@@ -55,12 +55,10 @@ class SearchMetadata:
                 if self._image_data.get_dimensions(uuid) == target]
 
     def and_operator(self, list1: list, list2: list) -> list:
-        """Interseccio, mantenint l'ordre de list1 i sense duplicats. O(n+m)."""
         in_second = set(list2)
         return [u for u in dict.fromkeys(list1) if u in in_second]
 
     def or_operator(self, list1: list, list2: list) -> list:
-        """Unio, mantenint l'ordre i sense duplicats. O(n+m)."""
         return list(dict.fromkeys(list(list1) + list(list2)))
 
     def __str__(self):

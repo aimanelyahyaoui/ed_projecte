@@ -28,8 +28,31 @@ class Gallery:
         self._name = ""
         self._description = ""
         self._date = ""
-        self._uuids = deque() 
+        self._uuids = deque()
 
+    def _lookup_uuid(self, path: str):
+        p = path.replace("\\", "/")
+        candidates = [p]
+        parts = p.split("/", 1)
+        rest = parts[1] if len(parts) == 2 else None
+        for raw in (p, rest):
+            if raw is None:
+                continue
+            try:
+                candidates.append(cfg.get_canonical_pathfile(raw))
+            except Exception:
+                pass
+        if rest is not None:
+            candidates += [rest, "../" + rest]
+        seen = set()
+        for key in candidates:
+            if key in seen:
+                continue
+            seen.add(key)
+            uuid = self._image_id.get_uuid(key)
+            if uuid is not None:
+                return uuid
+        return None
 
     def load_file(self, file: str):
         path = file
@@ -42,7 +65,7 @@ class Gallery:
             print(f"No es pot llegir la galeria '{file}': {e}")
             return
         if not isinstance(data, dict):
-            print(f"Format de galeria no vàlid: '{file}'")
+            print(f"Format de galeria no valid: '{file}'")
             return
 
         self._name = str(_pick(data, _NAME_KEYS))
@@ -55,22 +78,19 @@ class Gallery:
 
         self._uuids = deque()
         for image in images:
-            # si cada element es un objecte, agafem-ne el path
             if isinstance(image, dict):
                 image = _pick(image, ("file", "path", "filename", "image"), None)
             if not isinstance(image, str):
                 continue
-            image = image.replace("\\", "/")
-            uuid = self._image_id.get_uuid(image)
+            uuid = self._lookup_uuid(image)
             if uuid is None:
-                print(f"Imatge no trobada a la col·lecció: {image}")
+                print(f"Imatge no trobada a la col.leccio: {image}")
                 continue
             self._uuids.append(uuid)
 
     def show(self):
         for uuid in self._uuids:
             self._viewer.show_image(uuid, cfg.DISPLAY_MODE)
-
 
     def add_image_at_end(self, uuid: str):
         self._uuids.append(str(uuid))
@@ -82,7 +102,6 @@ class Gallery:
     def remove_last_image(self):
         if self._uuids:
             self._uuids.pop()
-
 
     def get_uuids(self) -> list:
         return list(self._uuids)
