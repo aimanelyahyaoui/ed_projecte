@@ -14,13 +14,13 @@ _FIELDS = (
     ("generated", "Generated"),
     ("created_date", "Created_Date"),
 )
-NONE = "None"   
+NONE = "None"
 
 
 class ImageData:
 
     def __init__(self):
-        self._images = {}   
+        self._images = {}
 
     def add_image(self, uuid: str, file: str):
         record = {"file": file, "width": -1, "height": -1}
@@ -55,16 +55,24 @@ class ImageData:
         record["width"], record["height"] = width, height
 
     def _resolve(self, file):
-        candidate = os.path.join(cfg.get_root(), file)
-        if os.path.isfile(candidate):
-            return candidate
-        if os.path.isfile(file):
-            return file
+        root = cfg.get_root()
+        p = file.replace("\\", "/")
+        candidates = [os.path.join(root, p), p]
+        stripped = p
+        while stripped.startswith("../"):
+            stripped = stripped[3:]
+        if stripped != p:
+            candidates.append(os.path.join(root, stripped))
+        if "/" in p:
+            candidates.append(os.path.join(root, p.split("/", 1)[1]))
+        for candidate in candidates:
+            if os.path.isfile(candidate):
+                return candidate
         return None
 
     def _get(self, uuid, attr):
         record = self._images.get(uuid)
-        return NONE if record is None else record[attr]
+        return None if record is None else record[attr]
 
     def get_prompt(self, uuid: str) -> str:
         return self._get(uuid, "prompt")
@@ -97,12 +105,14 @@ class ImageData:
     def get_dimensions(self, uuid: str) -> tuple:
         record = self._images.get(uuid)
         if record is None:
-            return (-1, -1)
+            return None
         return (record["width"], record["height"])
+
+    def get_uuids(self) -> list:
+        return list(self._images)
 
     def __len__(self):
         return len(self._images)
 
     def __str__(self):
         return f"ImageData: {len(self._images)} imatges"
-

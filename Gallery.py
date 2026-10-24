@@ -63,10 +63,10 @@ class Gallery:
                 data = json.load(f)
         except Exception as e:
             print(f"No es pot llegir la galeria '{file}': {e}")
-            return
+            return False
         if not isinstance(data, dict):
             print(f"Format de galeria no valid: '{file}'")
-            return
+            return False
 
         self._name = str(_pick(data, _NAME_KEYS))
         self._description = str(_pick(data, _DESC_KEYS))
@@ -87,6 +87,7 @@ class Gallery:
                 print(f"Imatge no trobada a la col.leccio: {image}")
                 continue
             self._uuids.append(uuid)
+        return True
 
     def show(self):
         for uuid in self._uuids:
