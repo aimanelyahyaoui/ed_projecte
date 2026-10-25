@@ -57,7 +57,7 @@ class ImageData:
     def _resolve(self, file):
         root = cfg.get_root()
         p = file.replace("\\", "/")
-        candidates = [os.path.join(root, p), p]
+        candidates = [os.path.join(root, p), os.path.normpath(os.path.join(root, p)), p]
         stripped = p
         while stripped.startswith("../"):
             stripped = stripped[3:]

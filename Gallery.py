@@ -55,6 +55,10 @@ class Gallery:
         return None
 
     def load_file(self, file: str):
+        self._name = ""
+        self._description = ""
+        self._date = ""
+        self._uuids = deque()
         path = file
         if not os.path.isfile(path):
             path = os.path.join(cfg.get_root(), file)
@@ -63,10 +67,10 @@ class Gallery:
                 data = json.load(f)
         except Exception as e:
             print(f"No es pot llegir la galeria '{file}': {e}")
-            return False
+            return
         if not isinstance(data, dict):
             print(f"Format de galeria no valid: '{file}'")
-            return False
+            return
 
         self._name = str(_pick(data, _NAME_KEYS))
         self._description = str(_pick(data, _DESC_KEYS))
@@ -87,7 +91,6 @@ class Gallery:
                 print(f"Imatge no trobada a la col.leccio: {image}")
                 continue
             self._uuids.append(uuid)
-        return True
 
     def show(self):
         for uuid in self._uuids:
